@@ -148,13 +148,13 @@ if (!$me) { session_destroy(); header('Location: index.html'); exit; }
 $displayName = htmlspecialchars($me['nome'], ENT_QUOTES, 'UTF-8');
 ?><!doctype html>
 <html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#16834b"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png" type="image/png">
 <meta name="csrf-token" content="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
 <title>LineTime — sua rede</title>
 <style>
 :root{--green:#16834b;--green2:#e9f5ed;--ink:#1d2922;--muted:#66736b;--line:#e1e9e3;--bg:#f4f7f4}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:12px max(16px,calc((100% - 1080px)/2));display:flex;align-items:center;gap:18px}header strong{font-size:23px;color:var(--green)}header span{color:var(--muted);margin-right:auto}.wrap{max-width:1080px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px}.side,.card{background:white;border:1px solid var(--line);border-radius:16px;padding:16px}.side{height:max-content;position:sticky;top:78px}.side button,.tab{display:block;width:100%;text-align:left;border:0;background:white;padding:11px;border-radius:10px;font-weight:700;color:var(--ink);cursor:pointer}.side button:hover,.tab.active{background:var(--green2);color:var(--green)}main{min-width:0}.card{margin-bottom:15px}.row{display:flex;gap:10px;align-items:center}.row input,.card textarea,.search{border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit}.row input{flex:1}.card textarea{width:100%;min-height:76px;margin:10px 0}.btn{border:0;border-radius:10px;background:var(--green);color:#fff;padding:10px 14px;font-weight:700;cursor:pointer}.muted{color:var(--muted);font-size:13px}.post{border-bottom:1px solid var(--line);padding:14px 0}.post:last-child{border:0}.post b{color:var(--green)}.post img{display:block;max-width:100%;max-height:480px;border-radius:12px;margin-top:10px}.item{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}.item:last-child{border:0}.item .grow{flex:1}.msglist{max-height:50vh;overflow:auto;padding:12px;background:#f8faf8;border-radius:12px}.bubble{width:fit-content;max-width:85%;padding:9px 12px;margin:7px 0;background:#e7eee8;border-radius:12px}.bubble.mine{margin-left:auto;background:var(--green2)}.hidden{display:none}.notice{background:#fff5d9;padding:12px;border-radius:10px;margin-bottom:12px}@media(max-width:700px){.wrap{grid-template-columns:1fr;margin-top:12px}.side{position:static;display:flex;overflow:auto;padding:7px}.side button{white-space:nowrap;width:auto}.wrap{padding:0 10px}header{padding:12px}header span{display:none}}
 </style></head><body>
-<header><strong>LineTime</strong><span>Conecte-se, compartilhe e converse</span><label title="Alterar foto do perfil" style="display:flex;align-items:center;gap:8px;cursor:pointer"><img id="profile-photo" src="<?= htmlspecialchars($me['foto_perfil'] ?: '', ENT_QUOTES, 'UTF-8') ?>" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover" <?= empty($me['foto_perfil']) ? 'hidden' : '' ?>><b><?= $displayName ?></b><input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden></label><a class="btn" href="controller/deslogar-controller.php" style="text-decoration:none">Sair</a></header>
+<header><strong>LineTime</strong><span>Conecte-se, compartilhe e converse</span><button class="btn" id="pwa-install" type="button">Instalar app</button><label title="Alterar foto do perfil" style="display:flex;align-items:center;gap:8px;cursor:pointer"><img id="profile-photo" src="<?= htmlspecialchars($me['foto_perfil'] ?: '', ENT_QUOTES, 'UTF-8') ?>" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover" <?= empty($me['foto_perfil']) ? 'hidden' : '' ?>><b><?= $displayName ?></b><input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden></label><a class="btn" href="controller/deslogar-controller.php" style="text-decoration:none">Sair</a></header>
 <div class="wrap"><nav class="side"><button class="tab active" data-page="feed">Início</button><button class="tab" data-page="pessoas">Pessoas e seguidores</button><button class="tab" data-page="mensagens">Mensagens</button></nav>
 <main><div id="status" class="muted" role="status"></div>
 <section id="page-feed"><div class="card"><form id="post-form"><textarea name="texto" maxlength="2000" placeholder="O que você quer compartilhar?"></textarea><div class="row"><input type="file" name="foto" accept="image/jpeg,image/png,image/webp"><button class="btn">Publicar</button></div><p class="muted">Fotos JPG, PNG ou WebP até 5 MB.</p></form></div><div class="card"><h2>Publicações</h2><div id="feed"></div></div></section>
@@ -176,4 +176,21 @@ document.getElementById('people').addEventListener('click',async e=>{const f=e.t
 document.getElementById('load-conversation').addEventListener('click',()=>loadMessages().catch(e=>say(e.message)));
 document.getElementById('message-form').addEventListener('submit',async e=>{e.preventDefault();const text=document.getElementById('message-text');try{await api('?api=mensagens',{method:'POST',body:JSON.stringify({com:Number(document.getElementById('conversation').value),texto:text.value})});text.value='';await loadMessages();say('Mensagem enviada.')}catch(err){say(err.message)}});
 loadFeed().catch(e=>say(e.message));loadPeople().catch(e=>say(e.message));
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+let installPrompt = null;
+const installButton = document.getElementById('pwa-install');
+window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; });
+installButton?.addEventListener('click', async () => {
+  if (installPrompt) {
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    return;
+  }
+  alert('No Android: abra o menu ⋮ do navegador e toque em “Instalar app” ou “Adicionar à tela inicial”. No iPhone: Safari > Compartilhar > Adicionar à Tela de Início.');
+});
+window.addEventListener('appinstalled', () => { if (installButton) installButton.textContent = 'LineTime instalado'; });
 </script></body></html>
