@@ -1,18 +1,11 @@
 <?php
-
+declare(strict_types=1);
 session_start();
-	
-    //DESTRUINDO A SESSÃO QUE FOI INICIADA COM O LOGIN
-	unset(
-		$_SESSION['usuarioId'],
-		$_SESSION['usuarioNome'],
-		$_SESSION['usuarioEmail'],
-		$_SESSION['usuarioSenha'],
-        $_SESSION['usuarioStatus']
-	);
-	
-	$_SESSION['logado'] = 0;
-	//redirecionar o usuario para a pÃ¡gina de login
-        
-        echo "<meta HTTP-EQUIV='Refresh' CONTENT='0;"
-                        . "URL=../'>";
+$_SESSION=[];
+if (ini_get('session.use_cookies')) {
+    $p=session_get_cookie_params();
+    setcookie(session_name(),'',time()-42000,$p['path'],$p['domain'],$p['secure'],$p['httponly']);
+}
+session_destroy();
+header('Location: ../index.php');
+exit;
