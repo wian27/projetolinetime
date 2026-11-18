@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+$https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>$https,'httponly'=>true,'samesite'=>'Lax']);
 session_start();
 require_once __DIR__ . '/model/Conexao.php';
 
@@ -35,7 +37,7 @@ function requireCsrf(): void {
 }
 function safeText($value, int $max): string {
     $value = trim((string)$value);
-    if (mb_strlen($value, 'UTF-8') > $max) jsonOut(['erro'=>'O texto excede o limite permitido.'], 422);
+    if ((function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value)) > $max) jsonOut(['erro'=>'O texto excede o limite permitido.'], 422);
     return $value;
 }
 function savePhoto(array $file): ?string {
