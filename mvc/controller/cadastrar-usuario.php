@@ -19,7 +19,7 @@ $password=(string)($_POST['senha'] ?? '');
 $country=trim((string)($_POST['pais'] ?? ''));
 $city=trim((string)($_POST['cidade'] ?? ''));
 $state=trim((string)($_POST['estado'] ?? ''));
-if ($name==='' || mb_strlen($name,'UTF-8')>100 || !$email || strlen($password)<10 || strlen($password)>200) {
+if ($name==='' || (function_exists('mb_strlen') ? mb_strlen($name,'UTF-8') : strlen($name))>400 || !$email || strlen($password)<10 || strlen($password)>200) {
     registrationError('Informe nome e e-mail válidos e use uma senha com pelo menos 10 caracteres.');
 }
 $baseUrl=rtrim((string)getenv('LINETIME_BASE_URL'),'/');
